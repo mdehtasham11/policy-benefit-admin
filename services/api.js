@@ -3,6 +3,8 @@ import axios from 'axios';
 
 export const sendFcmToken = async () => {
   try {
+    await messaging().registerDeviceForRemoteMessages();
+
     const token = await messaging().getToken();
     console.log('FCM Token:', token);
     await axios.post('https://benefit-notification.onrender.com/save-token', {

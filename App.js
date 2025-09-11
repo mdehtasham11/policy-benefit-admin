@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StatusBar } from 'react-native';
 import SocketClient from './components/SocketClient';
 import AdminPanel from './components/AdminPanel';
 import messaging from '@react-native-firebase/messaging';
 import { sendFcmToken } from './services/api';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function App() {
   async function requestuserPerrmission() {
@@ -39,7 +40,7 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <SocketClient onEvent={handleEvent}>
         {({
           connected,
@@ -59,12 +60,13 @@ export default function App() {
           />
         )}
       </SocketClient>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0F172A',
   },
 });
