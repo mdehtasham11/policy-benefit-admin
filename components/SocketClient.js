@@ -5,7 +5,7 @@ import SoundService from '../services/SoundService';
 const SocketClient = ({ onEvent, children }) => {
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
-  const serverUrl = 'http://192.168.1.6:9010';
+  const serverUrl = 'https://benefit-notification.onrender.com';
 
   useEffect(() => {
     // Connect to the server

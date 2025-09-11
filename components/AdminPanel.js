@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getPayload } from '../services/api.js';
 import {
   View,
   Text,
@@ -18,6 +19,20 @@ const AdminPanel = ({
 }) => {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [volume, setVolume] = useState(0.75);
+  const [response, setResponse] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPayload = async () => {
+      try {
+        const data = await getPayload();
+        setResponse(data.data || []); // ✅ Pick array only
+      } catch (error) {
+        setError('Error fetching data: ' + error.message);
+      }
+    };
+    fetchPayload();
+  }, []);
 
   const formatTime = timestamp => {
     return new Date(timestamp).toLocaleTimeString();
@@ -129,12 +144,43 @@ const AdminPanel = ({
               <Text style={styles.emptyText}>No recent events</Text>
             </View>
           ) : (
-            <ScrollView style={styles.eventsList}>
+            <ScrollView style={styles.eventsList} nestedScrollEnabled>
               {events.map((event, index) => (
                 <View key={index} style={styles.eventItem}>
                   <View style={styles.eventHeader}>
                     <Text style={styles.eventType}>{event.type}</Text>
                     <Text style={styles.eventTime}>{formatTime(event.at)}</Text>
+                  </View>
+                  <Text style={styles.eventWho}>From: {event.who}</Text>
+                  {event.meta && Object.keys(event.meta).length > 0 && (
+                    <View style={styles.metaContainer}>
+                      {Object.entries(event.meta).map(([key, value]) => (
+                        <Text key={key} style={styles.metaText}>
+                          {key}: {JSON.stringify(value)}
+                        </Text>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          )}
+        </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>All Events</Text>
+          {response.length === 0 ? (
+            <View style={styles.emptyEvents}>
+              <Text style={styles.emptyText}>No recent events</Text>
+            </View>
+          ) : (
+            <ScrollView style={styles.eventsList} nestedScrollEnabled>
+              {response.map((event, index) => (
+                <View key={index} style={styles.eventItem}>
+                  <View style={styles.eventHeader}>
+                    <Text style={styles.eventType}>{event.type}</Text>
+                    <Text style={styles.eventTime}>
+                      {formatTime(event.createdAt)}
+                    </Text>
                   </View>
                   <Text style={styles.eventWho}>From: {event.who}</Text>
                   {event.meta && Object.keys(event.meta).length > 0 && (

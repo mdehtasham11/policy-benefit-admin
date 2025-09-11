@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1061128189677",
+    "project_id": "admin-notification-f4880",
+    "storage_bucket": "admin-notification-f4880.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061128189677:android:d88e96c8b573f94532bee4",
+        "android_client_info": {
+          "package_name": "com.policybenefit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAegTOzqvDFiNkZBk0MTzHMPHcWX90nvHU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
