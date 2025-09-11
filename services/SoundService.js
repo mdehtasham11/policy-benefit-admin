@@ -1,17 +1,16 @@
 import Sound from 'react-native-sound';
 
-// Private state using closure
+
 let sound = null;
 let isEnabled = false;
 let volume = 0.75;
 
-// Initialize sound on module load
+
 const initializeSound = () => {
   // Enable playback in silence mode
   Sound.setCategory('Playback');
 
-  // Try to load a system notification sound
-  // For React Native, we'll use a simple approach
+ 
   sound = new Sound('notification.wav', Sound.MAIN_BUNDLE, error => {
     if (error) {
       console.log('Failed to load notification sound:', error);
@@ -24,10 +23,10 @@ const initializeSound = () => {
   });
 };
 
-// Initialize sound immediately
+// Initialize sound 
 initializeSound();
 
-// Public functions
+
 const setEnabled = enabled => {
   isEnabled = enabled;
 };
@@ -76,7 +75,6 @@ const release = () => {
   }
 };
 
-// Export the functions as an object to maintain the same API
 export default {
   setEnabled,
   setVolume,
