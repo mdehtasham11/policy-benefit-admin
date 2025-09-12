@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getPayload } from '../services/api.js';
+import { sendFcmToken } from '../services/api.js';
 import {
   View,
   Text,
@@ -30,7 +31,7 @@ const AdminPanel = ({
     const fetchPayload = async () => {
       try {
         const data = await getPayload();
-        setResponse(data.data || []); 
+        setResponse(data.data || []);
 
         // Extract unique websites from the data
         const websites = [
@@ -66,6 +67,15 @@ const AdminPanel = ({
       { text: 'Cancel', style: 'cancel' },
       { text: 'Clear', onPress: () => onClearEvents && onClearEvents() },
     ]);
+  };
+
+  const refreshFcmToken = async () => {
+    try {
+      await sendFcmToken();
+      Alert.alert('Success', 'FCM token refreshed and sent.');
+    } catch (e) {
+      Alert.alert('Error', 'Failed to refresh token. Check logs.');
+    }
   };
 
   return (
@@ -153,6 +163,14 @@ const AdminPanel = ({
             </Text>
             <TouchableOpacity style={styles.reconnectButton}>
               <Text style={styles.buttonText}>Reconnect</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.soundButton}
+              onPress={refreshFcmToken}
+            >
+              <Text style={styles.buttonText}>Refresh Token</Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.urlExample}>Example: http://localhost:9085.</Text>

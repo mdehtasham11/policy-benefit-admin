@@ -5,6 +5,7 @@ import AdminPanel from './components/AdminPanel';
 import messaging from '@react-native-firebase/messaging';
 import { sendFcmToken } from './services/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { NotificationPermission } from './services/notification';
 
 export default function App() {
   async function requestuserPerrmission() {
@@ -26,7 +27,8 @@ export default function App() {
 
   useEffect(() => {
     requestuserPerrmission();
-    sendFcmToken();
+    
+    NotificationPermission();
   }, []);
 
   const [events, setEvents] = useState([]);

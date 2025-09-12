@@ -16,14 +16,25 @@ export const sendFcmToken = async () => {
         await AsyncStorage.setItem('apnToken', apns);
         console.log('💾 APNs Token saved to AsyncStorage');
       } else {
-        console.log('⚠️ APNs token not yet available (will be provided after registration).');
+        console.log(
+          '⚠️ APNs token not yet available (will be provided after registration).',
+        );
       }
     }
-
-    const token = await messaging().getToken();
-    console.log('FCM Token:', token);
+    let fcm = null;
+    if (Platform.OS === 'android') {
+      fcm = await messaging().getToken();
+      if (fcm) {
+        console.log('FCM token:', fcm);
+        await AsyncStorage.setItem('fcmToken', fcm);
+      } else {
+        console.log(
+          'fcm Token not yet available (will be provided after registration).',
+        );
+      }
+    }
     await axios.post('https://benefit-notification.onrender.com/save-token', {
-      fcmToken: token,
+      fcmToken: fcm,
       apnToken: apns,
     });
   } catch (error) {
