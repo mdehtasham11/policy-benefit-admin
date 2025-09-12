@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
+import { View, StyleSheet, StatusBar, Alert } from 'react-native';
 import SocketClient from './components/SocketClient';
 import AdminPanel from './components/AdminPanel';
 import messaging from '@react-native-firebase/messaging';
 import { sendFcmToken } from './services/api';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function App() {
   async function requestuserPerrmission() {
@@ -25,6 +25,15 @@ export default function App() {
   }
 
   useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('>>>', remoteMessage);
+      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    });
+
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
     requestuserPerrmission();
     sendFcmToken();
   }, []);
@@ -40,27 +49,29 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <SocketClient onEvent={handleEvent}>
-        {({
-          connected,
-          // socketId,
-          socketUrl,
-          checkConnection,
-          soundService,
-        }) => (
-          <AdminPanel
-            events={events}
-            connected={connected}
-            onClearEvents={clearEvents}
-            // socketId={socketId}
-            socketUrl={socketUrl}
-            checkConnection={checkConnection}
-            soundService={soundService}
-          />
-        )}
-      </SocketClient>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <SocketClient onEvent={handleEvent}>
+          {({
+            connected,
+            // socketId,
+            socketUrl,
+            checkConnection,
+            soundService,
+          }) => (
+            <AdminPanel
+              events={events}
+              connected={connected}
+              onClearEvents={clearEvents}
+              // socketId={socketId}
+              socketUrl={socketUrl}
+              checkConnection={checkConnection}
+              soundService={soundService}
+            />
+          )}
+        </SocketClient>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
