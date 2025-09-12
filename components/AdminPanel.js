@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Modal,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 
@@ -21,12 +22,27 @@ const AdminPanel = ({
   const [volume, setVolume] = useState(0.75);
   const [response, setResponse] = useState([]);
   const [error, setError] = useState(null);
+  const [selectedWebsite, setSelectedWebsite] = useState('All');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [availableWebsites, setAvailableWebsites] = useState(['All']);
 
   useEffect(() => {
     const fetchPayload = async () => {
       try {
         const data = await getPayload();
-        setResponse(data.data || []); // ✅ Pick array only
+        setResponse(data.data || []); 
+
+        // Extract unique websites from the data
+        const websites = [
+          ...new Set((data.data || []).map(event => event.who)),
+        ];
+        const websiteOptions = ['All', ...websites];
+        setAvailableWebsites(websiteOptions);
+
+        // Set first website as default (excluding 'All')
+        if (websites.length > 0) {
+          setSelectedWebsite(websites[0]);
+        }
       } catch (error) {
         setError('Error fetching data: ' + error.message);
       }
@@ -36,6 +52,13 @@ const AdminPanel = ({
 
   const formatTime = timestamp => {
     return new Date(timestamp).toLocaleTimeString();
+  };
+
+  const getFilteredEvents = () => {
+    if (selectedWebsite === 'All') {
+      return response;
+    }
+    return response.filter(event => event.who === selectedWebsite);
   };
 
   const clearEvents = () => {
@@ -120,7 +143,6 @@ const AdminPanel = ({
             Chime will play only for events with type call_click.
           </Text>
         </View>
-
         {/* Connection Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Connection</Text>
@@ -135,7 +157,6 @@ const AdminPanel = ({
           </View>
           <Text style={styles.urlExample}>Example: http://localhost:9085.</Text>
         </View>
-
         {/* Recent Events Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Events</Text>
@@ -166,15 +187,76 @@ const AdminPanel = ({
             </ScrollView>
           )}
         </View>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>All Events</Text>
-          {response.length === 0 ? (
+
+        {/* All Events Section */}
+        <View style={[styles.section, styles.allEventsSection]}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>All Events</Text>
+          </View>
+          <View style={styles.headerControlsRow}>
+            <TouchableOpacity
+              style={styles.dropdownButton}
+              onPress={() => setShowDropdown(!showDropdown)}
+            >
+              <Text style={styles.dropdownButtonText}>{selectedWebsite}</Text>
+              <Text style={styles.dropdownArrow}>
+                {showDropdown ? '▲' : '▼'}
+              </Text>
+            </TouchableOpacity>
+            <View style={styles.totalCallsContainer}>
+              <Text style={styles.totalCallsLabel}>Total Calls</Text>
+              <Text style={styles.totalCallsValue}>
+                {getFilteredEvents().length}
+              </Text>
+            </View>
+          </View>
+
+          {showDropdown && (
+            <View style={styles.dropdown}>
+              <ScrollView
+                style={styles.dropdownScroll}
+                nestedScrollEnabled
+                keyboardShouldPersistTaps="handled"
+              >
+                {availableWebsites.map((website, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.dropdownItem,
+                      selectedWebsite === website &&
+                        styles.dropdownItemSelected,
+                    ]}
+                    onPress={() => {
+                      setSelectedWebsite(website);
+                      setShowDropdown(false);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.dropdownItemText,
+                        selectedWebsite === website &&
+                          styles.dropdownItemTextSelected,
+                      ]}
+                    >
+                      {website}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {getFilteredEvents().length === 0 ? (
             <View style={styles.emptyEvents}>
-              <Text style={styles.emptyText}>No recent events</Text>
+              <Text style={styles.emptyText}>
+                {response.length === 0
+                  ? 'No recent events'
+                  : `No events from ${selectedWebsite}`}
+              </Text>
             </View>
           ) : (
-            <ScrollView style={styles.eventsList} nestedScrollEnabled>
-              {response.map((event, index) => (
+            <ScrollView style={styles.allEventsList} nestedScrollEnabled>
+              {getFilteredEvents().map((event, index) => (
                 <View key={index} style={styles.eventItem}>
                   <View style={styles.eventHeader}>
                     <Text style={styles.eventType}>{event.type}</Text>
@@ -267,6 +349,102 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 16,
   },
+  allEventsSection: {
+    position: 'relative',
+    overflow: 'visible',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+  },
+  headerControlsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  totalCallsContainer: {
+    backgroundColor: '#374151',
+    borderWidth: 1,
+    borderColor: '#374151',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
+  },
+  totalCallsLabel: {
+    color: '#9CA3AF',
+    fontSize: 11,
+    marginBottom: 2,
+  },
+  totalCallsValue: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  dropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#374151',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#6B7280',
+    minWidth: 150,
+    height: 40,
+  },
+  dropdownButtonText: {
+    color: 'white',
+    fontSize: 14,
+  },
+  dropdownArrow: {
+    color: '#9CA3AF',
+    fontSize: 12,
+    marginLeft: 6,
+  },
+  dropdown: {
+    position: 'absolute',
+    top: 60,
+    right: 0,
+    backgroundColor: '#374151',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#6B7280',
+    zIndex: 1000,
+    minWidth: 180,
+    maxHeight: 220,
+    // Shadows/elevation for better layering
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  dropdownScroll: {
+    maxHeight: 220,
+  },
+  dropdownItem: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#4B5563',
+  },
+  dropdownItemSelected: {
+    backgroundColor: '#8B5CF6',
+  },
+  dropdownItemText: {
+    color: 'white',
+    fontSize: 14,
+  },
+  dropdownItemTextSelected: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
   buttonRow: {
     flexDirection: 'row',
     marginBottom: 20,
@@ -355,6 +533,9 @@ const styles = StyleSheet.create({
   },
   eventsList: {
     maxHeight: 200,
+  },
+  allEventsList: {
+    maxHeight: 600,
   },
   eventItem: {
     backgroundColor: '#374151',
