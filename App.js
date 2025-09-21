@@ -4,12 +4,8 @@ import SocketClient from './components/SocketClient';
 import AdminPanel from './components/AdminPanel';
 import messaging from '@react-native-firebase/messaging';
 import { sendFcmToken } from './services/api';
-
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { NotificationPermission } from './services/notification';
-
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-
 
 export default function App() {
   async function requestuserPerrmission() {
@@ -47,7 +43,7 @@ export default function App() {
         console.log('App initialization error:', error);
       }
     };
-    
+
     initializeApp();
   }, []);
 
@@ -64,9 +60,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        <StatusBar 
-          barStyle="light-content" 
-          backgroundColor="#0F172A" 
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="#0F172A"
           translucent={false}
         />
         <SocketClient onEvent={handleEvent}>
