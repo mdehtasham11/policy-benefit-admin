@@ -1,22 +1,27 @@
 import Sound from 'react-native-sound';
-
+import { Platform } from 'react-native';
 
 let sound = null;
 let isEnabled = false;
 let volume = 0.75;
 
-
 const initializeSound = () => {
   // Enable playback in silence mode
   Sound.setCategory('Playback');
 
- 
-  sound = new Sound('notification.wav', Sound.MAIN_BUNDLE, error => {
+  // Use different paths for iOS and Android
+  const soundPath = Platform.OS === 'ios' 
+    ? 'notification.wav'  // iOS will look in main bundle
+    : 'notification.wav'; // Android will look in res/raw
+
+  sound = new Sound(soundPath, Sound.MAIN_BUNDLE, error => {
     if (error) {
       console.log('Failed to load notification sound:', error);
-      console.log(
-        '💡 Make sure notification.wav exists in android/app/src/main/res/raw/',
-      );
+      if (Platform.OS === 'ios') {
+        console.log('💡 Make sure notification.wav is added to iOS project in Xcode');
+      } else {
+        console.log('💡 Make sure notification.wav exists in android/app/src/main/res/raw/');
+      }
     } else {
       console.log('Notification sound loaded successfully');
     }

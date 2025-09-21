@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, StatusBar, Alert } from 'react-native';
+import { StyleSheet, StatusBar, Alert } from 'react-native';
 import SocketClient from './components/SocketClient';
 import AdminPanel from './components/AdminPanel';
 import messaging from '@react-native-firebase/messaging';
@@ -33,10 +33,18 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  useEffect(() => {
-    requestuserPerrmission();
-    sendFcmToken();
-  }, []);
+  // useEffect(() => {
+  //   const initializeApp = async () => {
+  //     try {
+  //       await requestuserPerrmission();
+  //       await sendFcmToken();
+  //     } catch (error) {
+  //       console.log('App initialization error:', error);
+  //     }
+  //   };
+    
+  //   initializeApp();
+  // }, []);
 
   const [events, setEvents] = useState([]);
 
@@ -50,7 +58,12 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <StatusBar 
+          barStyle="light-content" 
+          backgroundColor="#0F172A" 
+          translucent={false}
+        />
         <SocketClient onEvent={handleEvent}>
           {({
             connected,
