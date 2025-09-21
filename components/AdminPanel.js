@@ -123,7 +123,7 @@ const AdminPanel = ({
             >
               <Text style={styles.buttonText}>Test Sound</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[styles.soundButton, styles.muteButton]}
               onPress={() => {
                 setSoundEnabled(false);
@@ -131,7 +131,7 @@ const AdminPanel = ({
               }}
             >
               <Text style={styles.buttonText}>Mute</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           <View style={styles.volumeContainer}>
             <Text style={styles.volumeLabel}>Volume</Text>
