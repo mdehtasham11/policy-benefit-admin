@@ -12,6 +12,4 @@ AppRegistry.registerComponent(appName, () => App);
 // Background/quit state message handler
 messaging().setBackgroundMessageHandler(async remoteMessage => {
   console.log('FCM background message:', JSON.stringify(remoteMessage));
-  // Let Firebase handle display notifications in background.
-  // For data-only messages, you can handle custom logic here if needed.
 });

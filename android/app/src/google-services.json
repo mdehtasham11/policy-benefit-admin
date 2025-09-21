@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "87222392962",
+    "project_id": "admin-773dc",
+    "storage_bucket": "admin-773dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:87222392962:android:e51036f72d336e150ebc9b",
+        "android_client_info": {
+          "package_name": "com.policybenefit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE74c6xTe7UGZWxTbz1hnRbkBjs9AB9ZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

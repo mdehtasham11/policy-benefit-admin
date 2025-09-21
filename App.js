@@ -4,7 +4,12 @@ import SocketClient from './components/SocketClient';
 import AdminPanel from './components/AdminPanel';
 import messaging from '@react-native-firebase/messaging';
 import { sendFcmToken } from './services/api';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { NotificationPermission } from './services/notification';
+
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
 
 export default function App() {
   async function requestuserPerrmission() {
@@ -33,18 +38,18 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  // useEffect(() => {
-  //   const initializeApp = async () => {
-  //     try {
-  //       await requestuserPerrmission();
-  //       await sendFcmToken();
-  //     } catch (error) {
-  //       console.log('App initialization error:', error);
-  //     }
-  //   };
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        await requestuserPerrmission();
+        await sendFcmToken();
+      } catch (error) {
+        console.log('App initialization error:', error);
+      }
+    };
     
-  //   initializeApp();
-  // }, []);
+    initializeApp();
+  }, []);
 
   const [events, setEvents] = useState([]);
 
