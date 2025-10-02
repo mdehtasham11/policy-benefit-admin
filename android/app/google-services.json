@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1061128189677",
-    "project_id": "admin-notification-f4880",
-    "storage_bucket": "admin-notification-f4880.firebasestorage.app"
+    "project_number": "241192899539",
+    "project_id": "benefit-admin",
+    "storage_bucket": "benefit-admin.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1061128189677:android:d88e96c8b573f94532bee4",
+        "mobilesdk_app_id": "1:241192899539:android:24fb54e0006ba95ec29526",
         "android_client_info": {
           "package_name": "com.policybenefit"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAegTOzqvDFiNkZBk0MTzHMPHcWX90nvHU"
+          "current_key": "AIzaSyDycYaFYC4Hn6KkMszQXYTeBFAPr9p76lM"
         }
       ],
       "services": {
