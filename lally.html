@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Case Crushers • Detective Quiz</title>
+  <meta name="description" content="Step into a world of lies, secrets, and suspense. Take the Case Crushers 5-Question Detective Quiz and climb the leaderboard.">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      /* Noir + crimson accent (murder mystery vibe) */
+      --bg:#0b0b0e;
+      --panel:#111217;
+      --panel-2:#161823;
+      --text:#f4f6f9;
+      --muted:#a7b0c0;
+      --accent:#e11d48;      /* Rose/Crimson */
+      --accent-2:#f59e0b;    /* Amber for highlights */
+      --ok:#22c55e;
+      --warn:#f97316;
+      --danger:#ef4444;
+      --stroke:rgba(255,255,255,0.08);
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background: radial-gradient(1200px 600px at 10% -10%, #12131a 0%, #0b0b0e 55%) fixed, var(--bg);
+      color:var(--text); font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+    .noise{
+      position:fixed; inset:0; pointer-events:none;
+      background-image: radial-gradient(#ffffff10 1px, transparent 1px);
+      background-size: 3px 3px; mix-blend-mode: overlay; opacity:.15;
+    }
+
+    /* Header */
+    .nav{
+      position:sticky; top:0; z-index:50; backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(11,11,14,.8), rgba(11,11,14,.35) 70%, rgba(11,11,14,0));
+      border-bottom:1px solid var(--stroke);
+    }
+    .nav-wrap{
+      max-width:1100px; margin:auto; padding:14px 18px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text);
+    }
+    .logo{
+      width:42px; height:42px; border-radius:12px; display:grid; place-items:center;
+      background: conic-gradient(from 140deg, #1f2937, #111827 60%, #0b0b0e), linear-gradient(135deg, #111827, #0b0b0e);
+      border:1px solid var(--stroke); box-shadow: var(--shadow), inset 0 0 0 2px rgba(255,255,255,0.03);
+      font-weight:800; letter-spacing:.5px; color:var(--accent);
+    }
+    .brand h1{font-size:18px; margin:0; line-height:1; font-weight:800; letter-spacing:.5px}
+    .brand small{display:block; color:var(--muted); font-weight:500; margin-top:2px}
+    .cta{
+      padding:10px 16px; border-radius:999px; border:1px solid var(--stroke); background:linear-gradient(180deg,#1c1e2a,#12131b);
+      color:var(--text); text-decoration:none; font-weight:600; display:inline-flex; gap:10px; align-items:center;
+      box-shadow:var(--shadow);
+    }
+    .cta .dot{width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent)}
+    .cta:hover{transform:translateY(-1px)}
+    .badge{
+      font-size:12px; padding:4px 10px; border-radius:999px; background: #0f172a; color:#cbd5e1; border:1px solid var(--stroke)
+    }
+
+    /* Hero */
+    .hero{
+      max-width:1100px; margin:28px auto 16px; padding:0 18px;
+      display:grid; grid-template-columns:1.1fr .9fr; gap:24px;
+    }
+    @media (max-width: 900px){ .hero{grid-template-columns:1fr} }
+    .hero-card{
+      background: radial-gradient(800px 400px at 0% 0%, #171926 0%, #11131b 55%), var(--panel);
+      border:1px solid var(--stroke); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); position:relative; overflow:hidden;
+    }
+    .hero h2{font-size:34px; line-height:1.15; margin:2px 0 12px; letter-spacing:.3px}
+    .hero p{color:var(--muted); margin:0 0 18px}
+    .list{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px}
+    .list .chip{
+      font-size:12px; padding:6px 10px; border-radius:999px; background:#141723; border:1px solid var(--stroke); color:#c7cfdf;
+    }
+    .start-btn{
+      --h: #b91c1c; --l:#ef4444;
+      display:inline-flex; align-items:center; gap:10px; padding:14px 18px; border-radius:12px; font-weight:700; letter-spacing:.4px;
+      background:linear-gradient(180deg, var(--l), var(--h)); border:none; color:white; cursor:pointer; box-shadow:0 10px 30px rgba(239,68,68,.35);
+    }
+    .start-btn:hover{filter:brightness(1.05); transform:translateY(-1px)}
+    .meter{height:8px; background:#0f1220; border:1px solid var(--stroke); border-radius:999px; overflow:hidden; margin-top:14px}
+    .meter > span{display:block; height:100%; width:0%; background: linear-gradient(90deg, var(--accent), #fb7185, #f59e0b); transition:width .35s ease}
+
+    .hero-art{
+      position:relative; isolation:isolate;
+      background: radial-gradient(600px 300px at 0% 0%, #151827 0%, #10121b 60%);
+      border:1px solid var(--stroke); border-radius:var(--radius); padding:0; overflow:hidden; box-shadow:var(--shadow);
+      min-height:320px; display:grid; place-items:center;
+    }
+    .grid{
+      position:absolute; inset:-2px; background-size:38px 38px;
+      background-image: linear-gradient(#ffffff09 1px, transparent 1px), linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+      mask-image: radial-gradient(70% 70% at 50% 50%, black, transparent 80%);
+    }
+    .hero-badge{
+      position:absolute; top:18px; right:18px; background:#111827; color:#e5e7eb; border:1px solid var(--stroke); border-radius:999px;
+      padding:8px 12px; font-size:12px; display:flex; gap:8px; align-items:center;
+    }
+    .figure{
+      width:70%; max-width:380px; aspect-ratio:1/1;
+      border-radius:24px; background:
+        radial-gradient(60% 60% at 30% 30%, #0c0e16 0%, transparent 60%),
+        linear-gradient(135deg, #0f172a 0%, #0a0b10 55%);
+      border:1px solid var(--stroke);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), 0 20px 60px rgba(0,0,0,.6);
+      display:grid; place-items:center; position:relative;
+    }
+    .figure h3{margin:0; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#e2e8f0}
+    .figure em{color:var(--accent-2); font-style:normal}
+    .sticker{
+      position:absolute; bottom:-12px; right:-12px; background:#0b1220; color:#ffe7ec; border:1px dashed #ef444430; border-radius:12px; padding:8px 12px; font-size:12px;
+      transform:rotate(-6deg); box-shadow:var(--shadow)
+    }
+
+    /* Card panels */
+    .panel{
+      max-width:1100px; margin:10px auto 50px; padding:0 18px;
+      display:grid; grid-template-columns: 1.2fr .8fr; gap:24px;
+    }
+    @media (max-width: 900px){ .panel{grid-template-columns:1fr} }
+
+    .card{
+      background: linear-gradient(180deg, #12131b, #0f1017);
+      border:1px solid var(--stroke); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);
+    }
+    .card h4{margin:0 0 12px; font-size:18px; letter-spacing:.4px}
+    .muted{color:var(--muted)}
+    .divider{height:1px; background:var(--stroke); margin:14px 0}
+
+    /* Quiz */
+    .quiz-wrap{ display:none; }
+    .question{
+      background:linear-gradient(180deg, #141624, #10121b);
+      border:1px solid var(--stroke); border-radius:16px; padding:18px; margin:12px 0; box-shadow:var(--shadow);
+    }
+    .q-title{font-size:18px; margin:0 0 10px}
+    .options{display:grid; gap:10px}
+    .option{
+      text-align:left; border-radius:12px; padding:12px 14px; border:1px solid var(--stroke);
+      background:#0f1422; cursor:pointer; transition:transform .08s ease, border-color .2s ease;
+    }
+    .option:hover{transform:translateY(-1px); border-color:#ffffff20}
+    .option.correct{border-color:#22c55e80; background:linear-gradient(180deg,#0f1c18,#0a1411)}
+    .option.wrong{border-color:#ef444480; background:linear-gradient(180deg,#1a0f12,#120a0c)}
+    .q-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px}
+    .next-btn{
+      padding:10px 14px; border-radius:12px; border:1px solid var(--stroke);
+      background:linear-gradient(180deg,#1b1e2a,#0f1117); color:var(--text); font-weight:700; cursor:pointer;
+    }
+    .next-btn[disabled]{opacity:.5; cursor:not-allowed}
+
+    /* Form */
+    .form{
+      display:none; gap:10px; margin-top:6px;
+      background:linear-gradient(180deg,#141624,#0e1017); border:1px solid var(--stroke); border-radius:16px; padding:16px;
+    }
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    @media (max-width: 600px){ .row{grid-template-columns:1fr} }
+    label{font-size:12px; color:#cbd5e1}
+    input{
+      width:100%; padding:12px 12px; border-radius:12px; border:1px solid #ffffff12; background:#0b0e17; color:var(--text);
+      outline:none;
+    }
+    .submit-btn{
+      margin-top:6px; padding:12px 14px; border-radius:12px; border:none; font-weight:800; letter-spacing:.3px; cursor:pointer;
+      background: linear-gradient(180deg, var(--accent), #b91c1c); color:white; box-shadow:0 10px 30px rgba(225,29,72,.35);
+    }
+
+    /* Leaderboard */
+    .leader{
+      display:none;
+      background: linear-gradient(180deg, #12131b, #0e1016); border:1px solid var(--stroke); border-radius:16px; padding:16px;
+    }
+    .lead-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px}
+    .lead-table{width:100%; border-collapse:collapse}
+    .lead-table th, .lead-table td{padding:12px 10px; border-bottom:1px dashed #ffffff14; text-align:left; font-size:14px}
+    .lead-table th{color:#cbd5e1; font-weight:600}
+    .medal{font-size:16px}
+    .me{background:#1a2030}
+    .again{
+      margin-top:12px; display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border:1px solid var(--stroke); border-radius:12px;
+      background:linear-gradient(180deg,#1b1e2a,#0f1117); color:var(--text); text-decoration:none; font-weight:700;
+    }
+
+    /* Footer strip */
+    .strip{
+      margin:40px 0 0; border-top:1px solid var(--stroke); padding:16px 18px; color:#cbd5e1; text-align:center; font-size:12px
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="nav-wrap">
+      <a class="brand" href="#" aria-label="Case Crushers">
+        <div class="logo">CC</div>
+        <div>
+          <h1>Case Crushers</h1>
+          <small>India’s #1 Murder Mystery Game</small>
+        </div>
+      </a>
+      <a class="cta" href="#quiz"><span class="dot"></span> Play the 5-Q Detective Quiz</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="quiz">
+    <div class="hero-card">
+      <span class="badge">🕵️ Join 20,000+ Detectives</span>
+      <h2>Can you crack the case in <em style="color:var(--accent-2); font-style:normal;">5 questions</em>?</h2>
+      <p>Spot the lies, read the clues, and see if you’ve got what it takes. Finish the quiz, enter your name & number, and jump onto the live leaderboard.</p>
+
+      <div class="list">
+        <span class="chip">Screen-free vibes</span>
+        <span class="chip">60s per round</span>
+        <span class="chip">Instant rank</span>
+        <span class="chip">Ad-ready lander</span>
+      </div>
+
+      <button class="start-btn" id="startBtn">🎯 Start Investigation</button>
+      <div class="meter" aria-label="progress"><span id="progressBar"></span></div>
+
+      <!-- QUIZ -->
+      <div class="quiz-wrap" id="quizWrap" aria-live="polite"></div>
+
+      <!-- FORM -->
+      <form class="form" id="infoForm" novalidate>
+        <h4>Badge Details</h4>
+        <p class="muted" style="margin-top:-6px">Enter your details to post your score to the leaderboard.</p>
+        <div class="row">
+          <div>
+            <label for="name">Detective Name</label>
+            <input id="name" name="name" placeholder="e.g. Sherlock" required>
+          </div>
+          <div>
+            <label for="phone">Phone Number</label>
+            <input id="phone" name="phone" inputmode="tel" placeholder="e.g. 98xxxxxx10" required>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn">Post My Score</button>
+        <p class="muted" style="font-size:11px;margin:8px 0 0">
+          No server storage here—this demo uses your browser only.
+        </p>
+      </form>
+
+      <!-- LEADERBOARD -->
+      <div class="leader" id="leader">
+        <div class="lead-head">
+          <h4 style="margin:0">🏆 Live Leaderboard</h4>
+          <span class="badge" id="myScoreBadge">Score: 0/5</span>
+        </div>
+        <div class="table-wrap">
+          <table class="lead-table" id="leadTable" aria-describedby="Leaderboard table">
+            <thead>
+              <tr><th>#</th><th>Detective</th><th>Score</th><th>Time</th></tr>
+            </thead>
+            <tbody id="leadBody"></tbody>
+          </table>
+        </div>
+        <a href="#" class="again" id="againBtn">🔁 Play Again</a>
+      </div>
+    </div>
+
+    <div class="hero-art" aria-hidden="true">
+      <div class="grid"></div>
+      <div class="hero-badge">🩸 Limited-time offer • Mystery boxes live</div>
+      <div class="figure">
+        <h3>Crack the <em>Case</em></h3>
+        <div class="sticker">FREE Stickers • 🔎</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="card">
+      <h4>What is Case Crushers?</h4>
+      <p class="muted">India’s #1 Murder Mystery Game—an immersive, screen-free detective experience delivered to your door. Each case comes with crime scene files, evidence, and clues. Perfect for 1–6 players.</p>
+      <div class="divider"></div>
+      <div class="list">
+        <span class="chip">Open the Case</span>
+        <span class="chip">Analyze the Clues</span>
+        <span class="chip">Crack the Case</span>
+      </div>
+    </div>
+    <div class="card">
+      <h4>Perfect for</h4>
+      <p class="muted">Game nights • Dates • Team bonding • Solo sleuthing</p>
+      <div class="divider"></div>
+      <p style="margin:0"><span class="badge">💥 Save 66–70%</span> <span class="badge">₹100 OFF on prepaid</span></p>
+    </div>
+  </section>
+
+  <footer class="strip">© 2025 Case Crushers • This quiz page is an ad lander demo (no backend).</footer>
+
+  <script>
+    // ---------- Config ----------
+    const QUESTIONS = [
+      {
+        text: "A victim was found with a calendar on the desk and the dates 6, 4, 9 circled. Suspects: June, April, and September. Who did it?",
+        options: ["June", "April", "September", "None of them"],
+        correct: 1, // April (4)
+        explain: "The circled numbers point to months—6 (June), 4 (April), 9 (September). The odd one is 4: April."
+      },
+      {
+        text: "You enter a room—no windows, locked from inside. The floor is soaked. A man lies dead with a wound. What was the weapon?",
+        options: ["Icicle", "Knife", "Poison", "Gun"],
+        correct: 0,
+        explain: "Classic: the melted icicle left only water."
+      },
+      {
+        text: "A man says, “I didn’t eat breakfast,” but you see crumbs on his tie. What’s the most likely truth?",
+        options: ["He’s lying", "He borrowed the tie", "It’s dandruff", "It’s unrelated"],
+        correct: 0,
+        explain: "Observation contradicts the statement—likely lying."
+      },
+      {
+        text: "CCTV shows a burglar at 02:00 with a mask and scarf. It’s summer in Mumbai (32°C). What detail stands out?",
+        options: ["Time is too late", "Too warm for scarf", "Mask illegal", "Camera angle is wrong"],
+        correct: 1,
+        explain: "In summer heat, a heavy scarf is suspicious camouflage."
+      },
+      {
+        text: "Footprints lead to a river bank but not away. Where did the suspect go?",
+        options: ["Boat escape", "Swam across", "Flew by drone", "Tunnel below"],
+        correct: 0,
+        explain: "Likely stepped into a boat; prints stop at the waterline."
+      }
+    ];
+
+    const SAMPLE_LEADERBOARD = [
+      { name: "Agent Rao",   phone: "98xx22xx10", score: 5, ms: 28_500 },
+      { name: "Detective A", phone: "90xx11xx77", score: 4, ms: 31_200 },
+      { name: "Maya",        phone: "88xx45xx12", score: 4, ms: 35_330 },
+      { name: "Kabir",       phone: "79xx20xx88", score: 3, ms: 30_010 },
+      { name: "Zee",         phone: "70xx19xx90", score: 3, ms: 44_400 },
+      { name: "Ishaan",      phone: "93xx77xx61", score: 2, ms: 25_000 },
+      { name: "Rhea",        phone: "82xx10xx76", score: 2, ms: 26_400 }
+    ];
+
+    // ---------- State ----------
+    const startBtn     = document.getElementById('startBtn');
+    const progressBar  = document.getElementById('progressBar');
+    const quizWrap     = document.getElementById('quizWrap');
+    const infoForm     = document.getElementById('infoForm');
+    const leader       = document.getElementById('leader');
+    const leadBody     = document.getElementById('leadBody');
+    const myScoreBadge = document.getElementById('myScoreBadge');
+    const againBtn     = document.getElementById('againBtn');
+
+    let idx = 0;
+    let score = 0;
+    let startedAt = 0;
+    let perQuestionAnswered = false;
+
+    // Try to restore “in-progress” state (lightweight)
+    function resetAll(){
+      idx = 0; score = 0; perQuestionAnswered = false;
+      progressBar.style.width = '0%';
+      quizWrap.innerHTML = '';
+      quizWrap.style.display = 'none';
+      infoForm.reset();
+      infoForm.style.display = 'none';
+      leader.style.display = 'none';
+    }
+
+    function startQuiz(){
+      resetAll();
+      startedAt = performance.now();
+      quizWrap.style.display = 'block';
+      renderQuestion();
+      window.scrollTo({top: quizWrap.offsetTop - 80, behavior:'smooth'});
+    }
+
+    function renderQuestion(){
+      const q = QUESTIONS[idx];
+      const total = QUESTIONS.length;
+
+      quizWrap.innerHTML = `
+        <div class="question">
+          <div class="q-title"><strong>Q${idx+1}.</strong> ${q.text}</div>
+          <div class="options" role="group" aria-label="Answer choices">
+            ${q.options.map((opt, i)=>`
+              <button class="option" data-i="${i}" type="button">${opt}</button>
+            `).join('')}
+          </div>
+          <div class="q-foot">
+            <div class="muted" id="feedback">Choose wisely…</div>
+            <button class="next-btn" id="nextBtn" disabled>Next</button>
+          </div>
+        </div>
+      `;
+
+      const buttons = [...quizWrap.querySelectorAll('.option')];
+      const nextBtn = quizWrap.querySelector('#nextBtn');
+      const feedback = quizWrap.querySelector('#feedback');
+      perQuestionAnswered = false;
+
+      buttons.forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          if(perQuestionAnswered) return;
+          perQuestionAnswered = true;
+          const chosen = Number(btn.dataset.i);
+          const isRight = (chosen === q.correct);
+          if(isRight){ score++; btn.classList.add('correct'); feedback.textContent = '✔ Correct! ' + q.explain; feedback.style.color = 'var(--ok)'; }
+          else{
+            btn.classList.add('wrong');
+            buttons[q.correct].classList.add('correct');
+            feedback.textContent = '✖ ' + q.explain;
+            feedback.style.color = 'var(--danger)';
+          }
+          nextBtn.disabled = false;
+        }, {once:true});
+      });
+
+      nextBtn.addEventListener('click', ()=>{
+        idx++;
+        const pct = Math.round((idx/total)*100);
+        progressBar.style.width = pct + '%';
+
+        if(idx < total){
+          renderQuestion();
+        } else {
+          // Done: show info form
+          quizWrap.style.display = 'none';
+          infoForm.style.display = 'grid';
+          myScoreBadge.textContent = `Score: ${score}/${QUESTIONS.length}`;
+          window.scrollTo({top: infoForm.offsetTop - 80, behavior:'smooth'});
+        }
+      });
+    }
+
+    function sanitizePhone(v){
+      // keep digits; simple client-side check
+      return (v||'').replace(/[^\d]/g,'').slice(0, 15);
+    }
+
+    function formatMs(ms){
+      const s = (ms/1000);
+      return s.toFixed(2) + 's';
+    }
+
+    function loadLeaderboard(){
+      const raw = localStorage.getItem('cc_leaderboard');
+      return raw ? JSON.parse(raw) : [...SAMPLE_LEADERBOARD];
+    }
+    function saveLeaderboard(list){
+      localStorage.setItem('cc_leaderboard', JSON.stringify(list));
+    }
+
+    function postMyScore(name, phone){
+      const took = Math.max(1, performance.now() - startedAt);
+      const entry = { name, phone, score, ms: Math.floor(took) };
+      const list = loadLeaderboard();
+
+      // Insert + sort: higher score first, then lower time wins
+      list.push(entry);
+      list.sort((a,b)=>{
+        if(b.score !== a.score) return b.score - a.score;
+        return a.ms - b.ms;
+      });
+
+      // keep only top 50 (demo)
+      const trimmed = list.slice(0,50);
+      saveLeaderboard(trimmed);
+
+      return { entry, index: trimmed.indexOf(entry), list: trimmed };
+    }
+
+    function renderLeaderboard(myIndex, list){
+      leader.style.display = 'block';
+      leadBody.innerHTML = '';
+
+      list.forEach((row, i)=>{
+        const medal = i===0 ? '🥇' : i===1 ? '🥈' : i===2 ? '🥉' : '—';
+        const tr = document.createElement('tr');
+        if(i===myIndex) tr.classList.add('me');
+        tr.innerHTML = `
+          <td class="medal">${medal}</td>
+          <td>${row.name}</td>
+          <td>${row.score}/${QUESTIONS.length}</td>
+          <td>${formatMs(row.ms)}</td>
+        `;
+        leadBody.appendChild(tr);
+      });
+
+      window.scrollTo({top: leader.offsetTop - 80, behavior:'smooth'});
+    }
+
+    // Events
+    startBtn.addEventListener('click', startQuiz);
+
+    infoForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = (document.getElementById('name').value || '').trim().slice(0, 40);
+      const phone = sanitizePhone(document.getElementById('phone').value);
+
+      if(!name){ alert('Please enter your detective name.'); return; }
+      if(!phone || phone.length < 8){ alert('Please enter a valid phone number.'); return; }
+
+      const { index, list } = postMyScore(name, phone);
+      infoForm.style.display = 'none';
+      renderLeaderboard(index, list);
+    });
+
+    againBtn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      startQuiz();
+    });
+
+    // If someone lands with previous leaderboard saved, nothing to do.
+  </script>
+</body>
+</html>

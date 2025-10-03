@@ -18,10 +18,15 @@ end
 target 'Policybenefit' do
   config = use_native_modules!
 
-  pod 'Firebase', :modular_headers => true
-  pod 'FirebaseCoreInternal', :modular_headers => true
+  # --- Firebase pins to satisfy RNFBApp (Firebase/CoreOnly ~> 12.2.0) ---
+  # NOTE: Do NOT use the umbrella 'Firebase' pod here; that can pull a conflicting version.
+  pod 'Firebase/CoreOnly', '~> 12.2.0', :modular_headers => true
+  pod 'FirebaseCore', '~> 12.2.0',      :modular_headers => true
+  pod 'FirebaseCoreInternal', '~> 12.2.0', :modular_headers => true
+
+  # Keep GoogleUtilities modular (no explicit pin; it will resolve under Firebase 12.2.x)
   pod 'GoogleUtilities', :modular_headers => true
-  pod 'FirebaseCore', :modular_headers => true
+  # ----------------------------------------------------------------------
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -34,7 +39,7 @@ target 'Policybenefit' do
     react_native_post_install(
       installer,
       config[:reactNativePath],
-      :mac_catalyst_enabled => false,
+      :mac_catalyst_enabled => false
       # :ccache_enabled => true
     )
   end

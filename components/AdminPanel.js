@@ -85,7 +85,7 @@ const AdminPanel = ({
         <View style={styles.headerLeft}>
           <Text style={styles.bellIcon}>🔔</Text>
           <View>
-            <Text style={styles.adminText}>Admin</Text>
+            <Text style={styles.adminText}>Admisn</Text>
             <Text style={styles.alertsText}>Alerts</Text>
           </View>
         </View>
@@ -158,9 +158,9 @@ const AdminPanel = ({
           <Text style={styles.sectionTitle}>Connection</Text>
           <Text style={styles.connectionLabel}>Socket Server URL</Text>
           <View style={styles.urlContainer}>
-            <Text style={styles.urlText}>
+            {/* <Text style={styles.urlText}>
               {socketUrl || 'https://socket-realtime-notification'}
-            </Text>
+            </Text> */}
             <TouchableOpacity style={styles.reconnectButton}>
               <Text style={styles.buttonText}>Reconnect</Text>
             </TouchableOpacity>

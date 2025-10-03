@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Alerts (Single-File HTML)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Icons / Fonts (optional) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#0F172A;        /* page background */
+      --card:#1E293B;      /* card bg */
+      --muted:#9CA3AF;     /* muted text */
+      --muted-2:#6B7280;   /* borders */
+      --soft:#374151;      /* soft surfaces */
+      --brand:#8B5CF6;     /* purple */
+      --ok:#10B981;        /* green */
+      --warn:#F59E0B;      /* yellow */
+      --text:#fff;         /* main text */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:20px}
+    .header{
+      display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0 16px 0;
+    }
+    .header .left{display:flex;align-items:center;gap:12px}
+    .bell{font-size:24px}
+    .admin{font-size:16px;font-weight:500}
+    .alerts{font-size:24px;font-weight:800;margin-top:2px}
+    .right{text-align:right}
+    .pill{
+      display:inline-block;border:1px solid var(--muted-2);border-radius:8px;padding:4px 8px;font-size:12px;color:var(--muted);
+    }
+    .status{font-size:14px;margin-bottom:8px}
+    .grid{display:grid;grid-template-columns:1fr;gap:20px}
+    @media(min-width:960px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:var(--card);border-radius:12px;padding:20px;position:relative}
+    .title{font-size:18px;font-weight:800;margin:0 0 16px 0}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+    .btn{
+      background:var(--soft);border:1px solid transparent;color:#fff;border-radius:8px;padding:10px 14px;
+      font-weight:600;font-size:14px;cursor:pointer;transition:.2s transform ease, .2s opacity ease;
+    }
+    .btn:hover{transform:translateY(-1px);opacity:.95}
+    .btn.ok{border-color:var(--ok)}
+    .btn.warn{border-color:var(--warn)}
+    .btn.brand{border-color:var(--brand)}
+    .label{font-size:14px;color:#fff;margin:0 16px 0 0;min-width:60px}
+    .range{flex:1}
+    input[type="range"]{width:100%}
+    .hint{font-size:12px;color:var(--muted);font-style:italic}
+    .muted{color:var(--muted)}
+    .urlBox{display:flex;gap:12px;align-items:center;margin:8px 0}
+    .urlText{flex:1;background:var(--soft);border-radius:8px;padding:12px;color:#fff;font-size:14px;border:1px solid var(--muted-2)}
+    .empty{padding:20px;text-align:center;color:var(--muted)}
+    .list{max-height:220px;overflow:auto;border-radius:10px}
+    .list.tall{max-height:600px}
+    .item{background:var(--soft);border-radius:8px;padding:12px;margin-bottom:8px}
+    .itemHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .etype{font-size:14px;font-weight:800;color:var(--brand)}
+    .etime{font-size:12px;color:var(--muted)}
+    .ewho{font-size:12px;color:#D1D5DB;margin-bottom:4px}
+    .meta{margin-top:4px}
+    .meta p{margin:0 0 2px 0;font-size:11px;color:var(--muted)}
+    /* Filter dropdown */
+    .filterRow{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:12px}
+    .dropBtn{display:flex;align-items:center;gap:6px;background:var(--soft);border:1px solid var(--muted-2);color:#fff;border-radius:8px;padding:8px 12px;min-width:160px;height:40px;cursor:pointer}
+    .drop{position:absolute;right:20px;top:76px;background:var(--soft);border:1px solid var(--muted-2);border-radius:8px;z-index:30;min-width:200px;max-height:240px;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .dropItem{padding:10px 12px;border-bottom:1px solid #4B5563;cursor:pointer}
+    .dropItem.active{background:var(--brand);font-weight:800}
+    .count{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--soft);border:1px solid var(--soft);border-radius:8px;padding:8px 12px;height:40px}
+    .count small{color:var(--muted);font-size:11px;margin-bottom:2px}
+    .count b{font-size:16px}
+    .tag{display:inline-flex;gap:8px;align-items:center}
+    .chip{display:inline-flex;align-items:center;gap:6px;background:rgba(139,92,246,.1);color:#E9D5FF;border:1px dashed var(--brand);padding:6px 10px;border-radius:999px;font-size:12px}
+    .divider{height:1px;background:#213047;margin:16px 0}
+    .topbar{position:sticky;top:0;background:linear-gradient(to bottom,var(--bg),transparent);height:12px;z-index:5}
+    .footerRow{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="left">
+        <div class="bell">🔔</div>
+        <div>
+          <div class="admin">Admin</div>
+          <div class="alerts">Alerts</div>
+        </div>
+      </div>
+      <div class="right">
+        <div id="socketStatus" class="status">Socket: <b>disconnected</b></div>
+        <div class="pill" id="soundPill">Sound: disabled</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Sound Settings -->
+      <section class="card">
+        <h2 class="title">Sound Settings</h2>
+        <div class="row">
+          <button class="btn" id="enableSoundBtn">Enable Sound</button>
+          <button class="btn ok" id="testSoundBtn">Test Sound</button>
+          <!-- <button class="btn warn" id="muteBtn">Mute</button> -->
+          <span class="chip" id="lastEventChip" style="display:none">event sent</span>
+        </div>
+        <div class="row" style="align-items:center">
+          <label class="label" for="volumeRange">Volume</label>
+          <input id="volumeRange" class="range" type="range" min="0" max="1" step="0.01" value="0.75" />
+        </div>
+        <p class="hint">Chime will play only for events with type <b>call_click</b>.</p>
+        <div class="divider"></div>
+        <div class="footerRow">
+          <button class="btn brand" id="injectEventBtn" title="Quickly add a fake call_click event for testing">Inject Test Event</button>
+          <button class="btn" id="clearRecentBtn">Clear Recent</button>
+        </div>
+      </section>
+
+      <!-- Connection / FCM -->
+      <section class="card">
+        <h2 class="title">Connection</h2>
+        <label class="muted" for="socketUrlIn">Socket Server URL</label>
+        <div class="urlBox">
+          <input id="socketUrlIn" class="urlText" placeholder="e.g. http://localhost:9085" />
+          <button class="btn" id="reconnectBtn">Reconnect</button>
+        </div>
+        <div class="row">
+          <button class="btn" id="refreshTokenBtn">Refresh Token</button>
+          <button class="btn" id="fetchPayloadBtn">Fetch Payload</button>
+        </div>
+        <p class="hint">Example: http://localhost:9085</p>
+        <div class="divider"></div>
+        <div class="tag">
+          <span class="muted">FCM:</span>
+          <span id="fcmState" class="chip">idle</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- Recent Events -->
+    <section class="card" style="margin-top:20px">
+      <h2 class="title">Recent Events</h2>
+      <div id="recentEmpty" class="empty">No recent events</div>
+      <div id="recentList" class="list" style="display:none"></div>
+    </section>
+
+    <!-- All Events -->
+    <section class="card" style="margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h2 class="title" style="margin:0">All Events</h2>
+      </div>
+      <div class="filterRow">
+        <button id="dropBtn" class="dropBtn">
+          <span id="selectedWebsite">All</span>
+          <span class="muted" id="dropArrow">▼</span>
+        </button>
+        <div class="count">
+          <small>Total Calls</small>
+          <b id="totalCalls">0</b>
+        </div>
+      </div>
+
+      <div id="dropdown" class="drop" style="display:none"></div>
+
+      <div id="allEmpty" class="empty">No recent events</div>
+      <div id="allList" class="list tall" style="display:none"></div>
+    </section>
+  </div>
+
+  <!-- Socket.io (optional; used if you provide a URL) -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-1nMZp4oH5RjZ1QGQ1P5n3kq3y1l7q0mJ8td3mZ6sXJ8W7bI2p5pRzXk8q2gYzQ9v" crossorigin="anonymous"></script>
+  <!-- Firebase (optional, for web push) -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-messaging-compat.js"></script>
+
+  <script>
+  /*******************************
+   * CONFIG: EDIT THESE IF NEEDED
+   *******************************/
+  const CONFIG = {
+    // If you have a backend endpoint that returns the "payload" list:
+    GET_PAYLOAD_URL: "", // e.g. "https://your-api.com/payload"
+    // Endpoint to POST your FCM token to your backend (optional):
+    SEND_TOKEN_URL: "",   // e.g. "https://your-api.com/register-token"
+    // Optional default socket server for realtime events:
+    DEFAULT_SOCKET_URL: "", // e.g. "http://localhost:9085"
+    // Firebase Web Push (optional). Fill to enable. Leave empty to skip.
+    FIREBASE: {
+      apiKey: "",
+      authDomain: "",
+      projectId: "",
+      messagingSenderId: "",
+      appId: "",
+      vapidKey: "" // your web push certificate key pair public key
+    }
+  };
+
+  /*******************************
+   * STATE
+   *******************************/
+  const state = {
+    soundEnabled: JSON.parse(localStorage.getItem("soundEnabled") ?? "false"),
+    volume: parseFloat(localStorage.getItem("volume") ?? "0.75"),
+    recent: [],                // newest first
+    response: [],              // full dataset from GET_PAYLOAD_URL
+    selectedWebsite: "All",
+    websites: ["All"],
+    socket: null,
+    socketUrl: localStorage.getItem("socketUrl") || CONFIG.DEFAULT_SOCKET_URL || "",
+  };
+
+  /*******************************
+   * SOUND SERVICE (HTML5 Audio)
+   *******************************/
+  const SoundService = (() => {
+    // Simple beep WAV (base64) – short chime
+    const BEEP_BASE64 =
+      "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQgAAAAA//8AAP//AAD//wAA//8AAP//AAD//wAA";
+    const audio = new Audio(BEEP_BASE64);
+    audio.preload = "auto";
+    audio.volume = state.volume;
+
+    return {
+      setEnabled: (on) => {
+        state.soundEnabled = !!on;
+        localStorage.setItem("soundEnabled", JSON.stringify(state.soundEnabled));
+        updateSoundPill();
+      },
+      testSound: () => {
+        if (!state.soundEnabled) return;
+        audio.currentTime = 0;
+        audio.volume = state.volume;
+        audio.play().catch(()=>{});
+      },
+      setVolume: (v) => {
+        state.volume = Math.max(0, Math.min(1, v));
+        localStorage.setItem("volume", String(state.volume));
+      },
+      chimeForEvent: (evt) => {
+        if (!state.soundEnabled) return;
+        if (!evt || evt.type !== "call_click") return;
+        audio.currentTime = 0;
+        audio.volume = state.volume;
+        audio.play().catch(()=>{});
+      }
+    };
+  })();
+
+  /*******************************
+   * DOM HELPERS
+   *******************************/
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => document.querySelectorAll(sel);
+
+  function timeFmt(ts){
+    const d = new Date(ts || Date.now());
+    return d.toLocaleTimeString();
+  }
+
+  function show(el){ el.style.display = ""; }
+  function hide(el){ el.style.display = "none"; }
+
+  function updateSoundPill(){
+    const pill = $("#soundPill");
+    pill.textContent = `Sound: ${state.soundEnabled ? "enabled" : "disabled"}`;
+  }
+
+  function setSocketStatus(connected){
+    $("#socketStatus").innerHTML = `Socket: <b>${connected? "connected":"disconnected"}</b>`;
+  }
+
+  /*******************************
+   * RENDERERS
+   *******************************/
+  function renderRecent(){
+    const list = $("#recentList");
+    const empty = $("#recentEmpty");
+    list.innerHTML = "";
+    if(state.recent.length === 0){ hide(list); show(empty); return; }
+    hide(empty); show(list);
+
+    state.recent.forEach(evt=>{
+      const item = document.createElement("div");
+      item.className = "item";
+      item.innerHTML = `
+        <div class="itemHead">
+          <div class="etype">${escapeHtml(evt.type||"")}</div>
+          <div class="etime">${escapeHtml(timeFmt(evt.at||Date.now()))}</div>
+        </div>
+        <div class="ewho">From: ${escapeHtml(evt.who||"-")}</div>
+        ${renderMeta(evt.meta)}
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function renderAll(){
+    const list = $("#allList");
+    const empty = $("#allEmpty");
+    list.innerHTML = "";
+    const filtered = getFilteredEvents();
+
+    $("#totalCalls").textContent = String(filtered.length);
+
+    if(filtered.length === 0){
+      hide(list); show(empty);
+      empty.textContent = state.response.length === 0 ? "No recent events" : `No events from ${state.selectedWebsite}`;
+      return;
+    }
+    hide(empty); show(list);
+
+    filtered.forEach(evt=>{
+      const item = document.createElement("div");
+      item.className = "item";
+      item.innerHTML = `
+        <div class="itemHead">
+          <div class="etype">${escapeHtml(evt.type||"")}</div>
+          <div class="etime">${escapeHtml(timeFmt(evt.createdAt || evt.at || Date.now()))}</div>
+        </div>
+        <div class="ewho">From: ${escapeHtml(evt.who||"-")}</div>
+        ${renderMeta(evt.meta)}
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function renderMeta(meta){
+    if(!meta || typeof meta !== "object" || Object.keys(meta).length===0) return "";
+    const rows = Object.entries(meta).map(([k,v])=>{
+      let val = "";
+      try{ val = JSON.stringify(v); }catch{ val = String(v); }
+      return `<p><b>${escapeHtml(k)}:</b> ${escapeHtml(val)}</p>`;
+    }).join("");
+    return `<div class="meta">${rows}</div>`;
+  }
+
+  function getFilteredEvents(){
+    if(state.selectedWebsite === "All") return state.response;
+    return state.response.filter(e => e.who === state.selectedWebsite);
+  }
+
+  function renderDropdown(){
+    const drop = $("#dropdown");
+    drop.innerHTML = "";
+    state.websites.forEach(w=>{
+      const item = document.createElement("div");
+      item.className = "dropItem" + (w === state.selectedWebsite ? " active":"");
+      item.textContent = w;
+      item.onclick = ()=>{
+        state.selectedWebsite = w;
+        $("#selectedWebsite").textContent = w;
+        drop.style.display = "none";
+        renderAll();
+      };
+      drop.appendChild(item);
+    });
+  }
+
+  /*******************************
+   * ESCAPE HTML
+   *******************************/
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"'`=\/]/g, (c)=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;","/":"&#x2F;","`":"&#x60;","=":"&#x3D;"
+    }[c]));
+  }
+
+  /*******************************
+   * DATA / API
+   *******************************/
+  async function getPayload(){
+    // If no backend is set, return mock data
+    if(!CONFIG.GET_PAYLOAD_URL){
+      // mock 6 rows
+      const now = Date.now();
+      return [
+        { type:"call_click", who:"SiteA", createdAt: now-1000*60*3, meta:{ number:"+1 833 366 8513", page:"/final" } },
+        { type:"form_submit", who:"SiteB", createdAt: now-1000*60*7, meta:{ name:"John", zip:"90210" } },
+        { type:"call_click", who:"SiteC", createdAt: now-1000*60*15, meta:{ number:"+1 323 689 7861", campaign:"X1" } },
+        { type:"page_view", who:"SiteA", createdAt: now-1000*60*21, meta:{ path:"/step-2" } },
+        { type:"call_click", who:"SiteB", createdAt: now-1000*60*28, meta:{ number:"+1 833 366 8513" } },
+        { type:"quiz_progress", who:"SiteA", createdAt: now-1000*60*35, meta:{ step:3 } },
+      ];
+    }
+    const res = await fetch(CONFIG.GET_PAYLOAD_URL, { credentials:"include" });
+    if(!res.ok) throw new Error("Failed to fetch payload");
+    // Expecting either array or {data: [...]}
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.data || []);
+  }
+
+  async function sendFcmTokenToServer(token){
+    if(!CONFIG.SEND_TOKEN_URL){
+      console.log("[FCM] token (no SEND_TOKEN_URL set):", token);
+      return { ok:true, mocked:true };
+    }
+    const res = await fetch(CONFIG.SEND_TOKEN_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ token })
+    });
+    return { ok: res.ok };
+  }
+
+  /*******************************
+   * SOCKET
+   *******************************/
+  function connectSocket(url){
+    cleanupSocket();
+    if(!url){ setSocketStatus(false); return; }
+    try{
+      const ioOpts = { transports:["websocket"], reconnection:true };
+      const socket = window.io(url, ioOpts);
+      state.socket = socket;
+      // status
+      socket.on("connect", ()=> setSocketStatus(true));
+      socket.on("disconnect", ()=> setSocketStatus(false));
+      // Generic "event" channel (adjust if your server uses something else)
+      socket.on("event", (payload)=>{
+        // expected shape: { type, who, at, meta }
+        handleIncomingEvent(payload || {});
+      });
+    }catch(e){
+      console.error("Socket error", e);
+      setSocketStatus(false);
+    }
+  }
+
+  function cleanupSocket(){
+    if(state.socket){
+      try{ state.socket.disconnect(); }catch{}
+      state.socket = null;
+    }
+  }
+
+  function handleIncomingEvent(evt){
+    // recent (newest first)
+    const withTs = { ...evt, at: evt.at || Date.now() };
+    state.recent = [withTs, ...state.recent].slice(0,200);
+    renderRecent();
+
+    // chime for call_click
+    SoundService.chimeForEvent(withTs);
+
+    // show tiny "event sent" chip quickly
+    const chip = $("#lastEventChip");
+    chip.style.display = "inline-flex";
+    setTimeout(()=>{ chip.style.display="none"; }, 1000);
+  }
+
+  /*******************************
+   * FCM (WEB PUSH, OPTIONAL)
+   *******************************/
+  let messaging;
+  function initFirebaseIfConfigured(){
+    const cfg = CONFIG.FIREBASE;
+    if(!cfg || !cfg.apiKey || !cfg.messagingSenderId || !cfg.appId) {
+      $("#fcmState").textContent = "disabled";
+      return null;
+    }
+    try{
+      firebase.initializeApp(cfg);
+      messaging = firebase.messaging();
+      $("#fcmState").textContent = "ready";
+    }catch(e){
+      console.warn("Firebase init error:", e);
+      $("#fcmState").textContent = "error";
+    }
+    return messaging;
+  }
+
+  async function requestPermissionAndToken(){
+    if(!messaging){ $("#fcmState").textContent = "disabled"; return; }
+    try{
+      $("#fcmState").textContent = "requesting";
+      const status = await Notification.requestPermission();
+      if(status !== "granted"){
+        $("#fcmState").textContent = "blocked";
+        return;
+      }
+      const token = await messaging.getToken({ vapidKey: CONFIG.FIREBASE.vapidKey || undefined });
+      $("#fcmState").textContent = "token_acquired";
+      await sendFcmTokenToServer(token);
+      $("#fcmState").textContent = "token_sent";
+    }catch(e){
+      console.error("FCM error:", e);
+      $("#fcmState").textContent = "error";
+    }
+  }
+
+  /*******************************
+   * INIT + UI WIRING
+   *******************************/
+  window.addEventListener("DOMContentLoaded", async ()=>{
+    // INIT UI with persisted values
+    $("#volumeRange").value = state.volume;
+    updateSoundPill();
+    $("#socketUrlIn").value = state.socketUrl;
+    if(state.socketUrl) connectSocket(state.socketUrl);
+
+    // Firebase (optional)
+    initFirebaseIfConfigured();
+
+    // Fetch initial payload (All Events)
+    await refreshPayload();
+
+    // UI handlers
+    $("#enableSoundBtn").onclick = ()=>{
+      SoundService.setEnabled(true);
+    };
+    $("#testSoundBtn").onclick = ()=>{
+      SoundService.testSound();
+    };
+    // $("#muteBtn").onclick = ()=>{ SoundService.setEnabled(false); };
+
+    $("#volumeRange").oninput = (e)=>{
+      const v = parseFloat(e.target.value);
+      SoundService.setVolume(v);
+    };
+
+    $("#injectEventBtn").onclick = ()=>{
+      const sample = {
+        type:"call_click",
+        who: state.websites.find(w => w !== "All") || "SiteA",
+        at: Date.now(),
+        meta:{ number:"+1 833 366 8513", page:"/final" }
+      };
+      handleIncomingEvent(sample);
+    };
+
+    $("#clearRecentBtn").onclick = ()=>{
+      state.recent = [];
+      renderRecent();
+    };
+
+    $("#reconnectBtn").onclick = ()=>{
+      const url = $("#socketUrlIn").value.trim();
+      state.socketUrl = url;
+      localStorage.setItem("socketUrl", url);
+      connectSocket(url);
+    };
+
+    $("#refreshTokenBtn").onclick = ()=>{
+      requestPermissionAndToken();
+    };
+
+    $("#fetchPayloadBtn").onclick = refreshPayload;
+
+    // Dropdown
+    $("#dropBtn").onclick = ()=>{
+      const drop = $("#dropdown");
+      drop.style.display = (drop.style.display === "none" || !drop.style.display) ? "block":"none";
+      renderDropdown();
+    };
+
+    // Close dropdown on outside click
+    document.addEventListener("click",(e)=>{
+      const drop = $("#dropdown");
+      const btn = $("#dropBtn");
+      if(!drop.contains(e.target) && !btn.contains(e.target)){
+        drop.style.display = "none";
+      }
+    });
+  });
+
+  async function refreshPayload(){
+    try{
+      const data = await getPayload();
+      // Expect array of events with fields: type, who, createdAt, meta
+      state.response = (data || []).slice().sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+      const websites = Array.from(new Set(state.response.map(e=> e.who).filter(Boolean)));
+      state.websites = ["All", ...websites];
+      // Default selection: first non-All if exists
+      if(websites.length > 0 && state.selectedWebsite === "All"){
+        state.selectedWebsite = websites[0];
+        $("#selectedWebsite").textContent = state.selectedWebsite;
+      }
+      renderAll();
+    }catch(e){
+      console.error("Payload error:", e);
+      state.response = [];
+      renderAll();
+    }
+  }
+  </script>
+</body>
+</html>
